@@ -1,0 +1,138 @@
+<header class="photo-heading no-photo"></header>
+<article class="article">
+	<h1 data-url="#!/article/dealing-with-design-patterns.html">Dealing with Design Patterns</h1>
+	<h2>Introduction</h2>
+	<p class="readmore">Last months I was dealing with Design Patterns, trying to understand how them work and how to implement in javascript, because of the Didgeridoo IDE development, and today I'll write about Module Pattern and Module Revealing Pattern. These are the ones I used for a part of the Didgeridoo project.</p>
+
+	<p>By the way, it's better if you know something about Design Patterns before. Creational Patterns, Structural Patterns and Behavioral Patterns. That three categories you should keep in mind (There also exist Concurrency Patterns, but I will not write about these for now).</p>
+
+	<h2>Brief Descriptions</h2>
+	<h3>Creational Patterns:</h3>
+	<p>This kind of patterns define the way objects are created in a manner that they can be decoupled from the system. Some of those are:</p>
+	<ul>
+		<li>Abstract Factory</li>
+		<li>Builder</li>
+		<li>Factory Method</li>
+		<li>Prototype</li>
+		<li>Singleton</li>
+	</ul>
+	<h3>Structural Patterns:</h3>
+	<p>This kind of patterns define the way classes and/or objects are structured. Some of those are:</p>
+	<ul>
+		<li>Adapter</li>
+		<li>Bridge</li>
+		<li>Composite</li>
+		<li>Decorator</li>
+		<li>Facade</li>
+		<li>Flyweight</li>
+		<li>Proxy</li>
+	</ul>
+	<h3>Behavioral Patterns:</h3>
+	<p>This kind of patterns define the way classes and/or objects behave when used to manage algorithms, relationships and responsibilities between them. Some of those are:</p>
+	<ul>
+		<li>Chain of Responsibility</li>
+		<li>Command</li>
+		<li>Interpreter</li>
+		<li>Iterator</li>
+		<li>Mediator</li>
+		<li>Memento</li>
+		<li>Observer</li>
+		<li>State</li>
+		<li>Strategy</li>
+		<li>Template Method</li>
+		<li>Visitor</li>
+	</ul>
+	<h2>The Module Pattern</h2>
+
+	<p>As of some programming languages provide mechanism for Module Pattern, in javascript we have to get a little bit tricky to simulate it.</p>
+
+	<pre><code class="js">
+var basketModule = (function() {
+    var basket = []; //private
+    function doSomethingPrivate(){
+      //...
+    }
+
+    function doSomethingElsePrivate(){
+      //...
+    }
+    return { //exposed to public
+        addItem: function(values) {
+            basket.push(values);
+        },
+        getItemCount: function() {
+            return basket.length;
+        },
+        doSomething: doSomethingPrivate(),
+        getTotal: function(){
+           var q = this.getItemCount(),p=0;
+            while(q--){
+                p+= basket[q].price;
+            }
+            return p;
+        }
+    }
+}());
+
+//basketModule is an object with properties which can also be methods
+basketModule.addItem({item:'bread',price:0.5});
+basketModule.addItem({item:'butter',price:0.3});
+
+console.log(basketModule.getItemCount());
+console.log(basketModule.getTotal());
+
+//however, the following will not work:
+console.log(basketModule.basket);// (undefined as not inside the returned object)
+console.log(basket); //(only exists within the scope of the closure)
+	</code></pre>
+
+	<p>
+		<em><small>Example by Addy Osmani (<a title="Essential Javascript Design Patterns" href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/" target="_blank">http://addyosmani.com/resources/essentialjsdesignpatterns/book/</a>).</small></em>
+	</p>
+
+	<p>At the beginning, the Module Pattern in javascript was thought as a way to simulate Classes with their own Execution Contexts and Scope in a DRY (Don't Repeat Yourself) manner. To understand how we can simulate modules in javascript, first we have to know about the concept of <a title="Closures" href="http://jibbering.com/faq/notes/closures/" target="_blank">Closures</a>.</p>
+
+	<p>In the example above you can see that the public part is done by returning an object, which acts like an interface for the basketModule module. And there also exists a private part that has its own scope and maintain chainability with the global scope. That way, public parts of your code are able to touch the private parts, however the outside world is unable to touch the class's private parts (nice joke Addy Osmani and David Engfer).</p>
+
+	<p>Note that the Module Pattern itself belongs to Creational Patterns, due to this define the way you should create the objects/modules, and also belongs to Structural Patterns, due to the nature of organizing the code in modules is a way of code structuring. So, many people, consider the Module Pattern as a different kind of "category" apart from the others. I think it's just a pattern that define both aspects (creational and structural).</p>
+
+	<h2>The Revealing Module Pattern</h2>
+
+	<p>This pattern is an improved version of the Module Pattern by Christian Heilmann (Mozilla).</p>
+	<p>It consists in a better way of organizing the code, like not writing the code of the public methods in the returning part of the code, but pointing to them in the private part. In other words, define all your methods and variables in the private part and keep the public part clean, as follow:</p>
+
+	<pre><code class="js">
+var myRevealingModule = (function(){
+
+    var name = 'John Smith';
+    var age = 40;
+
+    function updatePerson(){
+        name = 'John Smith Updated';
+    }
+
+    function setPerson () {
+        name = 'John Smith Set';
+    }
+
+    function getPerson () {
+        return name;
+    }
+
+    //Public interface
+    return {
+        set: setPerson,
+        get: getPerson
+    };
+}());
+
+// Sample usage:
+myRevealingModule.get();
+	</code></pre>
+
+
+	<p>
+		<em><small>Example by Addy Osmani (<a title="Essential Javascript Design Patterns" href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/" target="_blank">http://addyosmani.com/resources/essentialjsdesignpatterns/book/</a>).</small></em>
+	</p>
+	<p>It seems like there's no difference but it will help you to maintain your code well organized and clean.</p>
+</article>

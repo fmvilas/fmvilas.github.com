@@ -1,0 +1,11 @@
+<div class="category-list">
+	{{#talks}}
+		<div class="post">
+			<h1><a href="{{{url}}}">{{{title}}}</a></h1>
+			{{#content}}
+				<p>{{{.}}}</p>
+			{{/content}}
+			<a href="{{{url}}}" class="readmore">...</a>
+		</div>
+	{{/talks}}
+</div>

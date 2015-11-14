@@ -1,0 +1,11 @@
+<div class="category-list">
+	{{#articles}}
+		<div class="post">
+			<h1><a href="{{{url}}}">{{{title}}}</a></h1>
+			{{#content}}
+				<p>{{{.}}}</p>
+			{{/content}}
+			<a href="{{{url}}}" class="readmore">...</a>
+		</div>
+	{{/articles}}
+</div>

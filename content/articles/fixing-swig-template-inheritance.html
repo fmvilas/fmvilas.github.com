@@ -1,0 +1,147 @@
+<header class="photo-heading no-photo"></header>
+<article class="article">
+	<h1 data-url="#!/article/fixing-swig-template-inheritance.html">Fixing Swig’s Template Inheritance on Express for NodeJS</h1>
+
+	<p class="readmore">Today I was playing around with the Swig templating engine on Express for NodeJS, and I came into a problem:</p>
+
+	<blockquote class="readmore">
+	Extending templates doesn't work!
+	</blockquote>
+
+	<p>I was using two template files:</p>
+
+	<h2>index.html</h2>
+
+<pre><code class="html">{% extends 'layout.html' %}
+{% block site_title %}{{title}}{% endblock %}
+</code></pre>
+
+	<h2>layout.html</h2>
+
+<pre><code class="html">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;title&gt;{% block site_title %}My App{% endblock %}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;{{title}}&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+
+	<h2>app.js</h2>
+<pre><code class="js">
+var express = require('express')
+  , swig = require('swig')
+  , cons = require('consolidate')
+  , routes = require('./routes')
+  , http = require('http')
+  , path = require('path')
+  , VIEWS_DIR = __dirname + '/views';
+
+var app = express();
+
+// assign the swig engine to .html files
+app.engine('html', cons.swig);
+
+app.configure(function(){
+  app.set('port', process.env.PORT || 3000);
+  app.set('views', VIEWS_DIR);
+  app.set('view engine', 'html');
+  app.set('view options', { layout: false });
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(require('less-middleware')({ src: __dirname + '/public' }));
+  app.use(express.static(path.join(__dirname, 'public')));
+});
+
+app.configure('development', function(){
+  app.use(express.errorHandler());
+});
+
+app.get('/', routes.index);
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
+});
+
+</code></pre>
+
+	<p>...and I run into this error:</p>
+	<blockquote>
+	Error: Circular extends found on line 3 of...
+	</blockquote>
+
+	<p>But, after a few hours investigating I got it! You only have to initialize the Swig engine like this:</p>
+
+<pre><code class="js">
+swig.init({
+    root: VIEWS_DIR, //Note this directory is your Views directory
+    allowErrors: true // allows errors to be thrown and caught by express
+});
+
+</code></pre>
+
+	<p>So, finally, the code looks like this:</p>
+
+<pre><code class="js">
+var express = require('express')
+  , swig = require('swig')
+  , cons = require('consolidate')
+  , routes = require('./routes')
+  , http = require('http')
+  , path = require('path')
+  , VIEWS_DIR = __dirname + '/views';
+
+var app = express();
+
+swig.init({
+    root: VIEWS_DIR, //Note this directory is your Views directory
+    allowErrors: true // allows errors to be thrown and caught by express
+});
+
+// assign the swig engine to .html files
+app.engine('html', cons.swig);
+
+app.configure(function(){
+  app.set('port', process.env.PORT || 3000);
+  app.set('views', VIEWS_DIR);
+  app.set('view engine', 'html');
+  app.set('view options', { layout: false });
+  app.use(express.favicon());
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(require('less-middleware')({ src: __dirname + '/public' }));
+  app.use(express.static(path.join(__dirname, 'public')));
+});
+
+
+app.configure('development', function(){
+  app.use(express.errorHandler());
+});
+
+app.get('/', routes.index);
+
+http.createServer(app).listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
+});
+
+</code></pre>
+
+	<p>Hope this help!<br>
+	Happy coding!</p>
+
+	<hr>
+
+	<p>Update: You can find it in the docs (<del datetime="2012-12-14T03:10:06+00:00"><a href="https://github.com/paularmstrong/swig/blob/master/docs/express.md" title="https://github.com/paularmstrong/swig/blob/master/docs/express.md" target="_blank">https://github.com/paularmstrong/swig/blob/master/docs/express.md</a></del> <br> <a href="https://github.com/paularmstrong/swig/blob/master/examples/express/server.js" title="https://github.com/paularmstrong/swig/blob/master/examples/express/server.js" target="_blank">https://github.com/paularmstrong/swig/blob/master/examples/express/server.js</a>).</p>
+
+	<p>Thanks to <a href="https://twitter.com/paularmstrong" title="Paul Armstrong on twitter" target="_blank">@paularmstrong</a>.</p>
+</article>

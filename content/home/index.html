@@ -1,0 +1,32 @@
+<div class="home-category-list">
+	<h1>Talks</h1>
+	{{#talks}}
+		<div class="post">
+			<h2><a href="{{{url}}}">{{{title}}}</a></h2>
+			{{#content}}
+				<p>{{{.}}}</p>
+			{{/content}}
+			<a href="{{{url}}}" class="readmore">...</a>
+		</div>
+	{{/talks}}
+	<h1>Articles</h1>
+	{{#articles}}
+		<div class="post">
+			<h2><a href="{{{url}}}">{{{title}}}</a></h2>
+			{{#content}}
+				<p>{{{.}}}</p>
+			{{/content}}
+			<a href="{{{url}}}" class="readmore">...</a>
+		</div>
+	{{/articles}}
+	<h1>Experiments</h1>
+	{{#experiments}}
+		<div class="post">
+			<h2><a href="{{{url}}}">{{{title}}}</a></h2>
+			{{#content}}
+				<p>{{{.}}}</p>
+			{{/content}}
+			<a href="{{{url}}}" class="readmore">...</a>
+		</div>
+	{{/experiments}}
+</div>
